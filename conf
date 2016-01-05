@@ -68,3 +68,5 @@ if [ "$MYSQL_RUNNING" != "0" ]; then
     service mysql stop
 fi
 
+# cleanup files leftover from config
+rm /etc/inithooks.conf
