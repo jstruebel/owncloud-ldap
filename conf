@@ -54,6 +54,7 @@ for CFG in \
   'appid="user_ldap", configkey="ldap_host", configvalue=""' \
   'appid="user_ldap", configkey="ldap_login_filter", configvalue="uid=%uid"' \
   'appid="user_ldap", configkey="ldap_login_filter_mode", configvalue="1"' \
+  'appid="user_ldap", configkey="ldap_port", configvalue="636"' \
   'appid="user_ldap", configkey="ldap_turn_off_cert_check", configvalue="1"' \
   'appid="user_ldap", configkey="ldap_user_filter_mode", configvalue="1"' \
   'appid="user_ldap", configkey="ldap_userlist_filter", configvalue="objectClass=posixAccount"'
