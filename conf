@@ -1,0 +1,70 @@
+#!/bin/bash -ex
+install()
+{
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get -y \
+        -o DPkg::Options::=--force-confdef \
+        -o DPkg::Options::=--force-confold \
+        install $@
+}
+
+# Defaults
+LDAP_SERVER="127.0.0.1"
+LDAP_BASEDN="dc=example,dc=com"
+LDAP_BINDDN="cn=owncloud,dc=example,dc=com"
+LDAP_PASS=turnkey
+
+# Customize app settings
+MYSQL="/usr/bin/mysql --defaults-file=/etc/mysql/debian.cnf --batch --execute"
+MYSQL_RUNNING=$(service mysql status > /dev/null; echo $?)
+DB_NAME=owncloud
+APPCFG=$DB_NAME.appconfig
+
+SU_CMD="su -s /bin/bash -c"
+OCC_EN="php /usr/share/owncloud/occ app:enable"
+OCC_DIS="php /usr/share/owncloud/occ app:disable"
+OCC_USER=www-data
+
+# Start MySQL server if not running
+if [ "$MYSQL_RUNNING" != "0" ]; then
+    service mysql start
+fi
+
+# Enable ldap user app
+for APP in \
+  user_ldap
+do
+  $SU_CMD "$OCC_EN $APP" $OCC_USER
+done
+
+# Set default options
+for CFG in \
+  'appid="user_ldap", configkey="ldap_agent_password", configvalue=""' \
+  'appid="user_ldap", configkey="ldap_base", configvalue=""' \
+  'appid="user_ldap", configkey="ldap_base_groups", configvalue=""' \
+  'appid="user_ldap", configkey="ldap_base_users", configvalue=""' \
+  'appid="user_ldap", configkey="ldap_display_name", configvalue="cn"' \
+  'appid="user_ldap", configkey="ldap_dn", configvalue=""' \
+  'appid="user_ldap", configkey="ldap_email_attr", configvalue="mail"' \
+  'appid="user_ldap", configkey="ldap_experienced_admin", configvalue="1"' \
+  'appid="user_ldap", configkey="ldap_group_display_name", configvalue="cn"' \
+  'appid="user_ldap", configkey="ldap_group_filter", configvalue="cn=*"' \
+  'appid="user_ldap", configkey="ldap_group_filter_mode", configvalue="1"' \
+  'appid="user_ldap", configkey="ldap_group_member_assoc_attribute", configvalue="memberUid"' \
+  'appid="user_ldap", configkey="ldap_host", configvalue=""' \
+  'appid="user_ldap", configkey="ldap_login_filter", configvalue="uid=%uid"' \
+  'appid="user_ldap", configkey="ldap_login_filter_mode", configvalue="1"' \
+  'appid="user_ldap", configkey="ldap_turn_off_cert_check", configvalue="1"' \
+  'appid="user_ldap", configkey="ldap_user_filter_mode", configvalue="1"' \
+  'appid="user_ldap", configkey="ldap_userlist_filter", configvalue="objectClass=posixAccount"'
+do
+  $MYSQL "insert into $APPCFG set $CFG;"
+done
+
+# initialize ldap settings
+/usr/lib/inithooks/bin/owncloud_ldap-reinit.sh $LDAP_SERVER $LDAP_BASEDN $LDAP_BINDDN $LDAP_PASS
+
+if [ "$MYSQL_RUNNING" != "0" ]; then
+    service mysql stop
+fi
+

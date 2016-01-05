@@ -1,0 +1,9 @@
+#!/bin/bash -e
+# set owncloud ldap binddn, password and server
+
+. /etc/default/inithooks
+
+[ -e $INITHOOKS_CONF ] && . $INITHOOKS_CONF
+
+$INITHOOKS_PATH/bin/owncloud_ldap.py --base="$LDAP_BASEDN" --binddn="$LDAP_BINDDN" --pass="$LDAP_PASS" --server="$LDAP_SERVER"
+
