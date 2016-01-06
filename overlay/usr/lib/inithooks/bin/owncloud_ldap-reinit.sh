@@ -47,7 +47,7 @@ for CFG in \
   "configvalue=\"ou=Groups,$LDAP_BASEDN\" where appid=\"user_ldap\" and configkey=\"ldap_base_groups\"" \
   "configvalue=\"ou=Users,$LDAP_BASEDN\" where appid=\"user_ldap\" and configkey=\"ldap_base_users\"" \
   "configvalue=\"$LDAP_BINDDN\" where appid=\"user_ldap\" and configkey=\"ldap_dn\"" \
-  "configvalue=\"ldaps://$LDAP_SERVER\" where appid=\"user_ldap\" and configkey=\"ldap_host\""
+  "configvalue=\"ldaps://$LDAP_SERVER\" where appid=\"user_ldap\" and configkey=\"ldap_host\"" \
   "configvalue=\"636\" where appid=\"user_ldap\" and configkey=\"ldap_port\""
 do
   $MYSQL "update $APPCFG set $CFG;"
